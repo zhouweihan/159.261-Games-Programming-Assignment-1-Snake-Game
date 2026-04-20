@@ -15,6 +15,7 @@ public class Main extends GameEngine {
     private Image bodyImage;
     private Image appleImage;
     private Image poisonImage;
+    private Image appleImage2;
 
     // single player mode data
     private List<Point> snake;
@@ -27,8 +28,7 @@ public class Main extends GameEngine {
     private List<Point> snake2;
     private Point apple1;
     private Point apple2;
-    private Point poison1;
-    private Point poison2;
+    private List<Point> poisons;
     private int snake1Size;
     private int snake2Size;
 
@@ -55,6 +55,11 @@ public class Main extends GameEngine {
     private int lives = INITIAL_LIVES;
     private int lives2 = INITIAL_LIVES;
 
+    //countdown state for two player mode
+    private int countdownSecond = 3;
+    private boolean countdownActive = false;
+    private double countdownTimer = 0;
+
     @Override
     public void init() {
         // set the size of windows
@@ -65,6 +70,7 @@ public class Main extends GameEngine {
         bodyImage = loadImage("dot.png");
         appleImage = loadImage("apple.png");
         poisonImage = loadImage("poison.png");
+        appleImage2 = loadImage("apple2.png");
 
         // initialize single player
         initSinglePlayer();
@@ -115,16 +121,42 @@ public class Main extends GameEngine {
         // Generate apples for both players
         generateAppleForTwoPlayer(1);
         generateAppleForTwoPlayer(2);
-        generatePoisonForTwoPlayer(1);
-        generatePoisonForTwoPlayer(2);
+
+        // Generate poisons for both players
+        poisons =new ArrayList<>();
+        generatePoisonForTwoPlayer();
+        generatePoisonForTwoPlayer();
+
+        //start the countdown
+        countdownActive = true;
+        countdownTimer = 0;
+        countdownSecond = 3;
+        paused = true;
     }
 
     @Override
     public void update(double dt) {
-        if (gameOver || !gameStarted || paused) {
+        if (gameOver || !gameStarted) {
             return;
         }
 
+        //handle countdown for two player mode
+        if(countdownActive){
+            countdownTimer += dt;
+            if(countdownTimer >= 1.0){
+                countdownTimer -= 1.0;
+                countdownSecond--;
+                if(countdownSecond <= 0){
+                    countdownActive = false;
+                    paused = false;
+                }
+            }
+            return;
+        }
+        if(paused)
+        {
+            return;
+        }
         if (!twoPlayerMode) {
             updateSinglePlayer();
         } else {
@@ -273,22 +305,44 @@ public class Main extends GameEngine {
         }
 
         // check poison
-        Point poisonPoint = (playerNum == 1) ? poison1 : poison2;
-        if (poisonPoint != null && newX == poisonPoint.x && newY == poisonPoint.y) {
-            if (playerNum == 1) {
+        boolean hitpoison = false;
+        int poisonIndex=-1;
+        for(int i=0;i<poisons.size();i++)
+        {
+            Point poisonPoint = poisons.get(i);
+            if (poisonPoint != null && newX == poisonPoint.x && newY == poisonPoint.y) {
+                hitpoison = true;
+                poisonIndex=i;
+                break;
+            }
+        }
+
+        if(hitpoison){
+            poisons.remove(poisonIndex);
+
+            if(playerNum ==1)
+            {
                 lives--;
-                generatePoisonForTwoPlayer(1);
-                if (lives <= 0) {
+                if(lives<=0){
                     gameOver = true;
+                }else{
+                    resetPlayerPosition(1);
                 }
-            } else {
+            }
+            if(playerNum == 2){
                 lives2--;
-                generatePoisonForTwoPlayer(2);
-                if (lives2 <= 0) {
+                if(lives2<=0){
                     gameOver = true;
+                }else{
+                    resetPlayerPosition(2);
                 }
             }
         }
+
+        if(poisons.size()<2){
+            generatePoisonForTwoPlayer();
+        }
+
     }
 
     // handle collision in single player
@@ -391,9 +445,12 @@ public class Main extends GameEngine {
             paintTwoPlayer();
         }
 
+        if(countdownActive){
+            drawCountdown();
+        }
         // draw pause message
-        if (paused) {
-            changeColor(green);
+        if (paused &&!countdownActive) {
+            changeColor(black);
             drawBoldText(width() / 2 - 80, height() / 2, "PAUSED", "Arial", 40);
             changeColor(black);
             drawText(width() / 2 - 120, height() / 2 + 40, "Press P to Resume", "Arial", 20);
@@ -439,18 +496,20 @@ public class Main extends GameEngine {
     private void paintTwoPlayer() {
         // draw apples
         if (apple1 != null) {
-            drawImage(appleImage, apple1.x * CELL_SIZE, apple1.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            drawImage(appleImage2, apple1.x * CELL_SIZE, apple1.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         }
         if (apple2 != null) {
             drawImage(appleImage, apple2.x * CELL_SIZE, apple2.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         }
 
         // draw poisons
-        if (poison1 != null && poisonImage != null) {
-            drawImage(poisonImage, poison1.x * CELL_SIZE, poison1.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        }
-        if (poison2 != null && poisonImage != null) {
-            drawImage(poisonImage, poison1.x * CELL_SIZE, poison1.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        if(poisons !=null)
+        {
+            for(Point poison:poisons){
+                if(poisonImage != null){
+                    drawImage(poisonImage, poison.x * CELL_SIZE, poison.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+            }
         }
 
         // draw snake 1 (blue)
@@ -495,6 +554,23 @@ public class Main extends GameEngine {
 
         changeColor(black);
         drawText(width() / 2 - 150, height() / 2 + 80, "P: Pause | R: Restart", "Arial", 18);
+    }
+
+    //draw countdown screen for two player mode
+    private void drawCountdown() {
+        changeColor(new Color (0,0,0,150));
+        drawSolidRectangle(0,0,width(),height());
+
+        changeColor(blue);
+        drawBoldText(width() / 2 - 200, height() / 2 - 120, "Player 1 (Blue): Arrow Keys", "Arial", 28);
+        changeColor(green);
+        drawBoldText(width() / 2 - 200, height() / 2 - 70, "Player 2 (Green): WASD", "Arial", 28);
+
+        changeColor(yellow);
+        String countdownText = String.valueOf(countdownSecond);
+        drawBoldText(width() / 2 - 30, height() / 2+20, countdownText, "Arial", 100);
+        changeColor(black);
+        drawBoldText(width() / 2 - 120, height() / 2+100, "GET READY!", "Arial", 32);
     }
 
     // draw game over screen
@@ -556,7 +632,7 @@ public class Main extends GameEngine {
             return;
         }
 
-        if (paused || gameOver) {
+        if (paused || gameOver||countdownActive) {
             return;
         }
 
@@ -739,24 +815,24 @@ public class Main extends GameEngine {
     }
 
     // generate poison for two player mode
-    private void generatePoisonForTwoPlayer(int playerNum) {
+    private void generatePoisonForTwoPlayer() {
         boolean validPosition = false;
         while (!validPosition) {
             int x = rand(GRID_SIZE);
             int y = rand(GRID_SIZE);
             boolean occupied = false;
 
-            List<Point> s1 = snake1;
-            List<Point> s2 = snake2;
-
-            for (Point segment : s1) {
+            for(Point segment : snake1) {
                 if (segment.x == x && segment.y == y) {
                     occupied = true;
                     break;
                 }
             }
-            if (!occupied) {
-                for (Point segment : s2) {
+
+            if(!occupied)
+            {
+                for(Point segment : snake2)
+                {
                     if (segment.x == x && segment.y == y) {
                         occupied = true;
                         break;
@@ -764,12 +840,27 @@ public class Main extends GameEngine {
                 }
             }
 
+            if(! occupied && apple1 != null && apple1.x == x && apple1.y == y)
+            {
+                occupied = true;
+            }
+            if(! occupied && apple2 != null && apple2.x == x && apple2.y == y)
+            {
+                occupied = true;
+            }
+
             if (!occupied) {
-                if (playerNum == 1) {
-                    poison1 = new Point(x, y);
-                } else {
-                    poison2 = new Point(x, y);
+                for (Point p : poisons) {
+                    if(p.x == x && p.y == y){
+                        occupied = true;
+                        break;
+                    }
+
                 }
+            }
+
+            if(!occupied){
+                poisons.add(new Point(x,y));
                 validPosition = true;
             }
         }
