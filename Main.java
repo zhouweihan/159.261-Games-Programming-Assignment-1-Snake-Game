@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +65,17 @@ public class Main extends GameEngine {
     private boolean countdownActive = false;
     private double countdownTimer = 0;
 
+    //starts-up menu
+    private Rectangle playButton;
+    private Rectangle quitButton;
+    private Rectangle helpButton;
+    private boolean showHelpScreen=false;
+
+    //gamemode selcection buttons
+    private Rectangle singlePlayerButton;
+    private Rectangle twoPlayerButton;
+    private boolean showModeSelection = false;
+
     @Override
     public void init() {
         // set the size of windows
@@ -82,6 +94,25 @@ public class Main extends GameEngine {
         if(backgroundMusic != null){
             startAudioLoop(backgroundMusic,-10.0f);
         }
+
+        //initialize menu button
+        int buttonWidth = 200;
+        int buttonHeight = 50;
+        int centerX=(GRID_SIZE*CELL_SIZE)/2;
+        int startY = GRID_SIZE * CELL_SIZE /2 -60;
+
+        playButton =new Rectangle(centerX-buttonWidth/2,startY,buttonWidth,buttonHeight);
+        helpButton =new Rectangle(centerX-buttonWidth/2,startY+70,buttonWidth,buttonHeight);
+        quitButton =new Rectangle(centerX-buttonWidth/2,startY+140,buttonWidth,buttonHeight);
+
+        //initialize mode selection buttons
+        int modeButtonWidth = 250;
+        int modeButtonHeight = 60;
+        int modeStartY = GRID_SIZE * CELL_SIZE / 2 - 80;
+
+        singlePlayerButton = new Rectangle(centerX - modeButtonWidth/2, modeStartY, modeButtonWidth, modeButtonHeight);
+        twoPlayerButton = new Rectangle(centerX - modeButtonWidth/2, modeStartY + 80, modeButtonWidth, modeButtonHeight);
+
         // initialize single player
         initSinglePlayer();
     }
@@ -474,7 +505,11 @@ public class Main extends GameEngine {
         changeBackgroundColor(black);
 
         if (!gameStarted) {
-            drawStartMenu();
+            if(showHelpScreen){
+                drawHelpScreen();
+            }else{
+                drawStartMenu();
+            }
             return;
         }
 
@@ -588,18 +623,78 @@ public class Main extends GameEngine {
 
     // draw start menu
     private void drawStartMenu() {
+        if (showModeSelection) {
+            drawModeSelection();
+        } else {
+            drawMainMenu();
+        }
+    }
+
+    // draw main menu with Play, Help, Quit
+    private void drawMainMenu() {
         changeColor(green);
         drawBoldText(width() / 2 - 100, height() / 2 - 100, "SNAKE GAME", "Arial", 50);
 
-        changeColor(black);
-        drawText(width() / 2 - 180, height() / 2 - 40, "1. Single Player - Arrow Keys", "Arial", 20);
-        drawText(width() / 2 - 180, height() / 2 - 10, "2. Two Players - Arrow + WASD", "Arial", 20);
+        //draw play button
+        if(playButton!=null){
+            changeColor(new Color(0,200,0));
+            drawSolidRectangle(playButton.x, playButton.y, playButton.width, playButton.height);
+            changeColor(black);
+            drawRectangle(playButton.x, playButton.y, playButton.width, playButton.height,3);
+            changeColor(white);
+            drawBoldText(playButton.x+65, playButton.y+35, "PLAY", "Arial", 28);
 
-        changeColor(black);
-        drawBoldText(width() / 2 - 180, height() / 2 + 40, "Press 1 or 2 to Select Mode", "Arial", 24);
+        }
 
-        changeColor(black);
-        drawText(width() / 2 - 150, height() / 2 + 80, "P: Pause | R: Restart", "Arial", 18);
+        //draw help button
+        if(helpButton!=null){
+            changeColor(new Color(0,100,200));
+            drawSolidRectangle(helpButton.x, helpButton.y, helpButton.width, helpButton.height);
+            changeColor(black);
+            drawRectangle(helpButton.x, helpButton.y, helpButton.width, helpButton.height,3);
+            changeColor(white);
+            drawBoldText(helpButton.x+60, helpButton.y+35, "HELP", "Arial", 28);
+        }
+
+        //draw quit button
+        if(quitButton!=null){
+            changeColor(new Color(200,0,0));
+            drawSolidRectangle(quitButton.x, quitButton.y, quitButton.width, quitButton.height);
+            changeColor(black);
+            drawRectangle(quitButton.x, quitButton.y, quitButton.width, quitButton.height,3);
+            changeColor(white);
+            drawBoldText(quitButton.x+60, quitButton.y+35, "QUIT", "Arial", 28);
+        }
+    }
+
+    // draw game mode selection screen
+    private void drawModeSelection() {
+        changeColor(green);
+        drawBoldText(width() / 2 - 150, height() / 2 - 150, "SELECT GAME MODE", "Arial", 40);
+
+        // Single Player button
+        if(singlePlayerButton != null){
+            changeColor(new Color(0, 150, 255));
+            drawSolidRectangle(singlePlayerButton.x, singlePlayerButton.y, singlePlayerButton.width, singlePlayerButton.height);
+            changeColor(black);
+            drawRectangle(singlePlayerButton.x, singlePlayerButton.y, singlePlayerButton.width, singlePlayerButton.height, 3);
+            changeColor(white);
+            drawBoldText(singlePlayerButton.x + 35, singlePlayerButton.y + 40, "SINGLE PLAYER", "Arial", 24);
+        }
+
+        // Two Player button
+        if(twoPlayerButton != null){
+            changeColor(new Color(255, 150, 0));
+            drawSolidRectangle(twoPlayerButton.x, twoPlayerButton.y, twoPlayerButton.width, twoPlayerButton.height);
+            changeColor(black);
+            drawRectangle(twoPlayerButton.x, twoPlayerButton.y, twoPlayerButton.width, twoPlayerButton.height, 3);
+            changeColor(white);
+            drawBoldText(twoPlayerButton.x + 35, twoPlayerButton.y + 40, "TWO PLAYERS", "Arial", 24);
+        }
+
+        // Back instruction
+        changeColor(new Color(150, 150, 150));
+        drawText(width() / 2 - 100, height() - 50, "Click outside to go back", "Arial", 16);
     }
 
     //draw countdown screen for two player mode
@@ -617,6 +712,61 @@ public class Main extends GameEngine {
         drawBoldText(width() / 2 - 30, height() / 2+20, countdownText, "Arial", 100);
         changeColor(black);
         drawBoldText(width() / 2 - 120, height() / 2+100, "GET READY!", "Arial", 32);
+
+    }
+
+    //draw help screen
+    private void drawHelpScreen() {
+        //background
+        changeColor(new Color (20,20,20));
+        drawSolidRectangle(0,0,width(),height());
+
+        //title
+        changeColor(green);
+        drawBoldText(width() / 2 - 80, 50, "HELP", "Arial", 40);
+
+        //game objects
+        changeColor(yellow);
+        drawBoldText(width()/2-120,90,"Game Obejects:", "Arial",20);
+        changeColor(white);
+        drawText(width()/2-220,115,"Eat Apples to grow and earn points.Avoid poison apples!", "Arial",18);
+        drawText(width()/2-200,140,"Don't crash to the walls or yourself.You have 5 lives","Arial",18);
+
+        //single player controls
+        changeColor(yellow);
+        drawBoldText(width()/2-120,180,"Single Player Controls:", "Arial",24);
+        changeColor(white);
+        drawBoldText(width()/2-180,205,"Arrow Keys: Move the snake", "Arial",18);
+
+        //two player controls
+        changeColor(yellow);
+        drawBoldText(width()/2-120,230,"Two Player Controls:", "Arial",24);
+        changeColor(blue);
+        drawText(width()/2-220,250,"Player 1(blue): Arrow keys to move","Arial",18);
+        changeColor(green);
+        drawText(width()/2-220,280,"Player 2(green): WASD keys to move","Arial",18);
+
+        //general controls
+        changeColor(yellow);
+        drawBoldText(width() / 2 - 120, 320, "General Controls:", "Arial", 24);
+        changeColor(white);
+        drawText(width() / 2 - 180, 350, "P - Pause/Resume game", "Arial", 18);
+        drawText(width() / 2 - 180, 385, "R - Restart game (when game over)", "Arial", 18);
+        drawText(width() / 2 - 180, 420, "M - Return to menu (when game is over)","Arial",18);
+
+        // Back button
+        int backBtnWidth = 150;
+        int backBtnHeight = 45;
+        int backBtnX = width() / 2 - backBtnWidth / 2;
+        int backBtnY = height() - 100;
+
+        changeColor(new Color(100, 100, 100));
+        drawSolidRectangle(backBtnX, backBtnY, backBtnWidth, backBtnHeight);
+        changeColor(black);
+        drawRectangle(backBtnX, backBtnY, backBtnWidth, backBtnHeight, 2);
+        changeColor(white);
+        drawBoldText(backBtnX + 35, backBtnY + 32, "BACK", "Arial", 24);
+
     }
 
     // draw game over screen
@@ -692,6 +842,45 @@ public class Main extends GameEngine {
             handleSinglePlayerInput(event);
         } else {
             handleTwoPlayerInput(event);
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent event) {
+        if(!gameStarted){
+            if(showHelpScreen){
+                int backBtnWidth =150;
+                int backBtnHeight = 45;
+                int backBtnX = width() / 2 - backBtnWidth / 2;
+                int backBtnY = height() - 100;
+
+                Rectangle backBtn = new Rectangle(backBtnX, backBtnY, backBtnWidth, backBtnHeight);
+                if(backBtn.contains(event.getPoint())){
+                    showHelpScreen = false;
+                }
+            }else if(showModeSelection){
+                // Handle mode selection clicks
+                if(singlePlayerButton != null && singlePlayerButton.contains(event.getX(), event.getY())){
+                    initSinglePlayer();
+                    showModeSelection = false;
+                    gameStarted = true;
+                } else if(twoPlayerButton != null && twoPlayerButton.contains(event.getX(), event.getY())){
+                    initTwoPlayer();
+                    showModeSelection = false;
+                    gameStarted = true;
+                } else {
+                    // Click outside buttons - go back to main menu
+                    showModeSelection = false;
+                }
+            }else{
+                if(playButton!=null&&playButton.contains(event.getX(), event.getY())){
+                    showModeSelection = true;
+                } else if (helpButton!=null&&helpButton.contains(event.getX(), event.getY())) {
+                    showHelpScreen = true;
+                } else if (quitButton!=null&&quitButton.contains(event.getX(), event.getY())) {
+                    System.exit(0);
+                }
+            }
         }
     }
 
