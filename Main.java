@@ -17,6 +17,10 @@ public class Main extends GameEngine {
     private Image poisonImage;
     private Image appleImage2;
 
+    //audio clips
+    private AudioClip backgroundMusic;
+    private AudioClip gameOverSound;
+
     // single player mode data
     private List<Point> snake;
     private Point apple;
@@ -72,6 +76,12 @@ public class Main extends GameEngine {
         poisonImage = loadImage("poison.png");
         appleImage2 = loadImage("apple2.png");
 
+        backgroundMusic = loadAudio("background.wav");
+        gameOverSound = loadAudio("gameover.wav");
+
+        if(backgroundMusic != null){
+            startAudioLoop(backgroundMusic,-10.0f);
+        }
         // initialize single player
         initSinglePlayer();
     }
@@ -220,6 +230,12 @@ public class Main extends GameEngine {
                 if (score > highScore) {
                     highScore = score;
                 }
+                if(backgroundMusic != null){
+                    stopAudioLoop(backgroundMusic);
+                }
+                if(gameOverSound != null){
+                    playAudio(gameOverSound);
+                }
             }
         }
     }
@@ -325,6 +341,12 @@ public class Main extends GameEngine {
                 lives--;
                 if(lives<=0){
                     gameOver = true;
+                    if(backgroundMusic!=null){
+                        stopAudioLoop(backgroundMusic);
+                    }
+                    if(gameOverSound!=null){
+                        playAudio(gameOverSound);
+                    }
                 }else{
                     resetPlayerPosition(1);
                 }
@@ -333,6 +355,12 @@ public class Main extends GameEngine {
                 lives2--;
                 if(lives2<=0){
                     gameOver = true;
+                    if(backgroundMusic!=null){
+                        stopAudioLoop(backgroundMusic);
+                    }
+                    if(gameOverSound!=null){
+                        playAudio(gameOverSound);
+                    }
                 }else{
                     resetPlayerPosition(2);
                 }
@@ -353,6 +381,12 @@ public class Main extends GameEngine {
             if (score > highScore) {
                 highScore = score;
             }
+            if(backgroundMusic!=null){
+                stopAudioLoop(backgroundMusic);
+            }
+            if(gameOverSound!=null){
+                playAudio(gameOverSound);
+            }
         } else {
             resetSnakePosition();
         }
@@ -364,6 +398,12 @@ public class Main extends GameEngine {
             lives--;
             if (lives <= 0) {
                 gameOver = true;
+                if(backgroundMusic!=null){
+                    stopAudioLoop(backgroundMusic);
+                }
+                if(gameOverSound!=null){
+                    playAudio(gameOverSound);
+                }
             } else {
                 resetPlayerPosition(1);
             }
@@ -371,6 +411,12 @@ public class Main extends GameEngine {
             lives2--;
             if (lives2 <= 0) {
                 gameOver = true;
+                if(backgroundMusic!=null){
+                    stopAudioLoop(backgroundMusic);
+                }
+                if(gameOverSound!=null){
+                    playAudio(gameOverSound);
+                }
             } else {
                 resetPlayerPosition(2);
             }
@@ -616,6 +662,9 @@ public class Main extends GameEngine {
                 initTwoPlayer();
             }
             gameOver = false;
+            if(backgroundMusic!=null){
+                startAudioLoop(backgroundMusic,-10.0f);
+            }
             return;
         }
 
@@ -623,6 +672,9 @@ public class Main extends GameEngine {
         if (gameOver && event.getKeyCode() == KeyEvent.VK_M) {
             gameStarted = false;
             gameOver = false;
+            if(backgroundMusic!=null){
+                startAudioLoop(backgroundMusic,-10.0f);
+            }
             return;
         }
 
