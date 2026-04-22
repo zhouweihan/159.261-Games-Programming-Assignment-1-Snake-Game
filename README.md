@@ -3,6 +3,9 @@
 
 A Snake game implemented in Java using the GameEngine framework with object-oriented architecture.
 
+Introduction video link:
+https://www.bilibili.com/video/BV1UbosBfERq/?share_source=copy_web&vd_source=9ff8c7cf1270b55fd8cb38e7f633df10
+
 ##  Table of Contents
 - [How to Run](#how-to-run)
 - [Game Features](#game-features)
