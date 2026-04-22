@@ -15,7 +15,7 @@ A Snake game implemented in Java using the GameEngine framework with object-orie
 ##  How to Run
 
 ### Prerequisites
-- Java Development Kit (JDK) 8 or higher
+- Java Development Kit (JDK) 21 or higher
 - Java compiler (`javac`)
 - Java runtime (`java`)
 
@@ -335,6 +335,6 @@ Created for Assignment 1 - Snake-game for 159.261 Game Programming
 ---
 
 
-**Enjoy the game! **
+Enjoy the game! 
 
 
