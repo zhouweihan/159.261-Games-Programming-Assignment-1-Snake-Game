@@ -21,33 +21,12 @@ A Snake game implemented in Java using the GameEngine framework with object-orie
 
 ### Running the Game
 
-#### Option 1: Using Command Line
-bash
-
-Navigate to the src directory
-
-cd assignment1/src
-
-Compile all Java files
-
-javac *.java
-
-Run the game
-
-java Main
-
-#### Option 2: Using IntelliJ IDEA
+#### Using IntelliJ IDEA
 
 1. Open the project in IntelliJ IDEA
 2. Navigate to `src/Main.java`
 3. Right-click on the file and select "Run 'Main.main()'"
 4. Or click the green play button next to the main method
-
-#### Option 3: Using Eclipse
-
-1. Import the project into Eclipse
-2. Navigate to `src/Main.java`
-3. Right-click and select "Run As" → "Java Application"
 
 ### Required Files
 
