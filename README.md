@@ -1,5 +1,4 @@
 # 159.261-Games-Programming-Assignment-1-Snake-Game
-# 159.261-Games-Programming-Assignment-1-Snake-Game
 
 
 A Snake game implemented in Java using the GameEngine framework with object-oriented architecture.
